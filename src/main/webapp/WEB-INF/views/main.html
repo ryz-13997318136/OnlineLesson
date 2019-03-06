@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"> 
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+	<title>Main</title>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/bootstrap-select/2.0.0-beta1/css/bootstrap-select.css" />
+	<link rel="stylesheet" type="text/css" href="../static/css/fileinput.css" />
+	<link rel="stylesheet" type="text/css" href="../static/css/common.css" />
+	
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/bootstrap-select/2.0.0-beta1/js/bootstrap-select.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="../static/js/common.js"></script>
+	<script src="../static/js/fileinput.js"></script>
+	
+	<script>
+	var topicList = {};
+	var user = JSON.parse('${userJson}');
+	var index = 0;
+ $(document).ready(function(){
+	$('#myAlert').hide();
+	 
+	$('#select1').hide();
+	$('#select2').hide();
+	$('#select3').hide();
+	
+	$("[data-toggle='tooltip']").tooltip(); 
+	$(".selectpicker").selectpicker({
+		width:'fit',
+	});
+	 $('#myTab a').click(function (e) { 
+         e.preventDefault();//阻止a链接的跳转行为
+         $(this).tab('show');//显示当前选中的链接及关联的content 
+         if($(this)[0].text=="  My Center"){
+        	 var form = $('#showUserForm');
+        	 if(user.sex=='man'){
+        		 form.find(":input[value='man']").attr("checked",true);
+        	 }
+        	 if(user.sex=='woman'){
+        		 form.find(":input[value='woman']").attr("checked",true);
+        	 }
+         }
+         if($(this)[0].text=='  Log out'){
+        	 window.location.href="../user/loginOut";
+         }
+         if($(this)[0].text=='  My Image'){
+        	 if(!$(this)[0].isFirst){
+        	 	$('#searchImage').trigger('click');
+        	 }
+        	 $(this)[0].isFirst = true;
+         }
+         
+       }) ;
+	
+	 
+	
+	}); 
+
+
+	
+ 
+</script>
+	
+	
+</head>
+<body>
+	<div class="container">
+
+	<div class="row clearfix">
+			<div class="col-md-2 column">
+				<img alt="140x140" src="../static/img/22.png" class="img-circle" style="height: 140px; width: 140px;"/>
+				<div class="panel panel-default" style="margin-top: 8px;">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							User Name : ${user.name}
+						</h3>
+					</div>
+					<div class="panel-body">
+						    Sex:${user.sex}
+					</div>
+					<div class="panel-footer">
+						 Last login time:${user.lastLoginTime?string('yyyy-MM-dd hh:mm:ss')}
+					</div>
+				</div>
+			</div>
+		<div class="col-md-10 column">
+		
+			<div class="container" style="width: auto;">
+				<div class="row clearfix">
+					<div class="col-md-2 column" style="width: auto;">
+					<embed style=" margin-left: -58px;" allowscriptaccess="never" allownetworking="internal" invokeurls="false" src="http://chabudai.sakura.ne.jp/blogparts/honehoneclock/honehone_clock_tr.swf" pluginspage="https://files.cnblogs.com/files/mmzs/flashDate.swf" type="application/x-shockwave-flash" quality="high" autostart="0" wmode="transparent" width="240" height="69" align="middle">
+					</div>
+					<div class="col-md-8 column">
+						<div id="myAlert" class="alert alert-success" style="margin-bottom: 0px;">
+						    <a href="#" class="close" onclick="$('#myAlert').hide()">&times;</a>
+						    <strong>成功！</strong><span>结果是成功的。</span>
+						</div>
+					</div>
+					<div class="col-md-2 column">
+					
+					</div>
+				</div>
+			</div>
+		
+			<ul class="nav nav-tabs" id="myTab" style="background-color: #a4eaa6;">
+				<li  class="active"><a href="#home" data-toggle="tab"><span class="glyphicon glyphicon-th-large"> </span> My Topic</a></li>
+				<li><a  href="#new" data-toggle="tab"><span class="glyphicon glyphicon-inbox"> </span> New Topic</a></li>
+				<li><a href="#center" data-toggle="tab"><span class="glyphicon glyphicon-user"> </span> My Center</a></li>
+				<li><a href="#imageUpload" data-toggle="tab"><span class="glyphicon glyphicon-cloud-upload"> </span> Image Upload</a></li>
+				<li><a href="#imageShow" data-toggle="tab"><span class="glyphicon glyphicon-picture"> </span> My Image</a></li>
+				<li class="dropdown pull-right">
+					 <a href="#" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-arrow-down"> </span> More<strong class="caret"></strong></a>
+					<ul class="dropdown-menu">
+						<li>
+							 <a href="#" ><span class="glyphicon glyphicon-off"> </span> Log out</a>
+						</li>
+						<li>
+							 <a href="#" data-toggle="tab"><span class="glyphicon glyphicon-paperclip"> </span> About</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<div id="myTabContent" class="tab-content">
+			
+				<div class="tab-pane fade in active" id="home">
+					<div>
+						<#include "/home.html">
+					</div>
+				</div>
+				<div class="tab-pane fade " id="new">
+					<div>
+						<#include "/newTopic.html">
+					</div>
+				</div>
+				<div class="tab-pane fade" id="center">
+					<div>
+						<#include "/userCenter.html">
+					</div>
+				</div>
+				<div class="tab-pane fade" id="imageUpload">
+					<div>
+						<#include "/image.html">
+					</div>
+				</div>
+				<div class="tab-pane fade" id="imageShow">
+					<div>
+						<#include "/imageShow.html">
+					</div>
+				</div>
+			
+			</div>
+		</div>
+	</div>
+</div>
+
+
+</body>
+</html>

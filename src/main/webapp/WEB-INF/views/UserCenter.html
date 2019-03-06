@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<script>
+$(document).ready(function(){
+	$('#saveUser').on('click',function(){
+		var form = $('#showUserForm');
+		var d = {};
+	    var t = form.serializeArray();
+	     $.each(t, function() {
+	      	d[this.name] = this.value;
+	     });
+	     if(d.password!=d.passwordAgain){
+	    	 $.showMsg('FAIL','please confirm the password');
+	    	 return;
+	     }
+	     
+		 var param = JSON.stringify(d);
+		 var fun = function(data){
+			 $.showMsg('SUCCESS',data.msg);
+			 $('#topicForm')[0].reset();
+		 }
+		 var url= "../user/save";
+		 $.ajaxPost(url,param,fun);
+	});	
+})
+
+
+  
+ </script>
+<body>
+
+
+
+<div class="col-sm-12">
+	<div class="container" style="width: auto;">
+					<div class="row clearfix">
+						<div class="col-md-12 column">
+							<form role="form" id="showUserForm">
+								<div class="form-group">
+									 <label for="exampleInputEmail1">User name</label>
+									 <input type="text" class="form-control" name="userName" value= '${user.name}'/>
+								</div>
+								<div class="form-group">
+									 <label >User age</label>
+									 <input type="number" class="form-control" name="userAge" value= '${user.age}'/>
+								</div>
+								<div class="form-group">
+									 <label for="exampleInputFile">Sex</label> 
+									 <label class="radio-inline">
+		      							<input type="radio"  value="man" name="sex">Man
+		    						</label>
+								    <label class="radio-inline">
+								      <input type="radio"  value="woman" name="sex">Woman
+								    </label>
+								</div>
+								<div class="form-group">
+									 <label >Password</label>
+									 <input type="password" class="form-control" name="password" value= '${user.password}'/>
+								</div>
+								<div class="form-group">
+									 <label >Password again</label>
+									 <input type="password" class="form-control" name="passwordAgain" value= '${user.password}'/>
+								</div>
+								<input type="hidden" class="form-control" name="userId" value= '${user.userId}'/>
+								 <button type="button" class="btn btn-default" id="saveUser"><span class="glyphicon glyphicon-saved"></span> Save</button>
+							</form>
+						</div>
+					</div>
+				</div>
+
+</div>
+
+</body>
+</html>

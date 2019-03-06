@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<script>
+$(document).ready(function(){
+	$('#searchImage').on('click',function(){
+		
+		var url = "../image/getImageByUserId";
+		var fun = function(data){
+			var imageTable = $("#imageTable");
+			$("#imageTable tr:not(:first)").empty(); 
+			var imageList = data.data;
+			var len = imageList.length;
+			for(var i=0;i<len;i++){
+				imageTable.append('<tr><td>'+
+						imageList[i].imageName+'</td><td>'+
+						imageList[i].imageUrl+'</td><td>'+
+						$.getLocalTime(imageList[i].uploadDate)+'</td><td>'+
+						'<a href="javascript:void(0);" imageId='+imageList[i].id+'  onclick="deleteImage(this)">delete</a>'+
+						'<a href="javascript:void(0);" url=../image/'+imageList[i].imageUrl+'/ onclick="checkImage(this)">  check</a>'+
+						'</td></tr>');
+			};
+		}
+		$.ajaxGet(url,{},fun);
+	})
+})
+
+function deleteImage(a){
+	 var url = "../image/delete";
+	 var param = {'imageId':$(a).attr('imageId')};
+	 var fun = function(data){
+		 $.showMsg('SUCCESS',data.msg);
+		 $(a).parent().parent().remove();
+	 }
+	 $.ajaxPost(url,JSON.stringify(param),fun);
+};
+function checkImage(a){
+	 var url = $(a).attr('url');
+	 $('#checkImageSrc').attr("src",url);
+	 $('#checkImageBtn').trigger('click');
+	 
+};
+   
+ </script>
+<body>
+<div class="col-sm-12" style=" margin-top: 8px;">
+
+<button type="button" id="searchImage" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> Search Image</button>
+
+
+</div>
+<div class="col-sm-12" style="max-height: 500px;overflow: scroll;margin-top: 5px;">
+	<div class="table-responsive" style="margin-top: 6px;">
+					<table class="table table-hover" id="imageTable">
+						<thead>
+							<tr style="background-color: #cfe8dd;">
+								<th>Image Name</th>
+								<th>Image Url</th>
+								<th>Image upload Date</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+					
+		</div>
+
+</div>
+
+<!-- 模态框（Modal） -->
+<button id ="checkImageBtn"  data-toggle="modal" data-target="#myModal" style="display: none;"></button>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+			</div>
+			<div class="modal-body">
+				<div  class="thumbnail">
+					<img id="checkImageSrc" style="width: 100%;height: 100%;"/>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

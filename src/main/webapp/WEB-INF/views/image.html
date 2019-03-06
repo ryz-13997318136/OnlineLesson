@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<script>
+$(document).ready(function(){
+	
+$('#uploadForm').submit(function (event) {
+    event.preventDefault();
+    var form = $(this);
+    // mulitipart form,如文件上传类
+      var formData = new FormData(this);
+      $.ajax({
+        type: form.attr('method'),
+        url: '../image/upload',
+        data: formData,
+        mimeType: "multipart/form-data",
+        contentType: false,
+        cache: false,
+        processData: false
+      }).success(function () {
+    	  $.showMsg('SUCCESS','上传成功');
+    	  $('#uploadForm')[0].reset();
+        //成功提交
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+    	  $.showMsg('FAIL','上传失败'+textStatus);
+        //错误信息
+      });
+  });
+  
+})
+
+
+
+
+ </script>
+<body>
+<div class="col-sm-12">
+ <form id="uploadForm"  enctype="multipart/form-data" action='' method='post'>
+    <div class="form-group">
+	   	<span class="help-block">可一次选择多个图片资源；压缩图片有助于减少访问流量，意味着图片有可能失真。目前只支持 .jpg 和  .png 格式的资源。</span>
+	   	<div class="checkbox">
+	    	<label><input type="checkbox" name="isZip">是否压缩图片</label>
+		</div>
+	  </div>
+  <div class="file-loading">
+     <input  id="uploadFile" type="file" name="fileName" multiple class="file" data-overwrite-initial="false"  data-theme="fas" accept="image/*">
+  </div>
+  </form>
+</div>
+</body>
+</html>

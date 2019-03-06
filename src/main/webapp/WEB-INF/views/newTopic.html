@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<script>
+$(document).ready(function(){
+	// 保存topic
+	$("#saveTopic").on('click',function(){
+		
+		 var url= "../topic/save";
+		 var formData = $("#topicForm");
+		 var d = {};
+	     var t = formData.serializeArray();
+	     $.each(t, function() {
+	      	d[this.name] = this.value;
+	     });
+	     if(!d.groupNo){
+			 $.showMsg('FAIL','please input the groupNo');
+			 return;
+		 }
+		if(d.imageId){
+			d.imageId = d.imageId.substr(0,d.imageId.indexOf(':'));
+		 }
+		 var param = JSON.stringify(d);
+		 var fun = function(data){
+			 $.showMsg('SUCCESS',data.msg);
+			 $('#topicForm')[0].reset();
+		 }
+		 $.ajaxPost(url,param,fun);
+	});
+	
+	$('#choiceImageModal').on('shown.bs.modal', function () {
+	      // 加载图片资源
+		var url = "../image/getImageByUserId";
+		var fun = function(data){
+			var choiceImageTable = $("#choiceImageTable");
+			$("#choiceImageTable tr:not(:first)").empty(); 
+			var imageList = data.data;
+			var len = imageList.length;
+			for(var i=0;i<len;i++){
+				choiceImageTable.append('<tr name="choiceImageTr" imageId = '+imageList[i].id+'><td>'+
+						imageList[i].imageName+'</td><td>'+
+						$.getLocalTime(imageList[i].uploadDate)+'</td><td>'+
+						'<a href="#" style="height: 70px;width: 70px;"><img style="height: 61px;width: 70px;" src="../image/'+imageList[i].imageUrl+'/" /></a>'+
+						'</td></tr>');
+			};
+			$("[name='choiceImageTr'").on('dblclick',function(a,b,c){
+				$('#readonlyImageId').val($(this).attr('imageid')+':'+$(this).children()[0].innerText);
+				$('#choiceImageModal').modal('hide');
+			})
+		}
+		$.ajaxGet(url,{},fun);
+     });
+	$("#excelUploadBtn").on('click',function(){
+	    // mulitipart form,如文件上传类
+      	var files = $('input[name="excelFile"]').prop('files');//获取到文件列表
+	  	if(files.length == 0){
+	  	  alert('请选择文件');
+	  	  return;
+	  	}
+  		var formData = new FormData();
+  	    var name = $("#excelFile").val();
+  	    formData.append("excelFile",$("#excelFile")[0].files[0]);
+  	    formData.append("name",name);
+	 	var reg = /^.*\.(?:xls|xlsx)$/i; 
+  		//校验是否是excel格式的文件
+        if (!reg.test(name)) {
+            $.showMsg('FAIL',"请上传excel格式的文件!");
+            return;
+        }
+	      $.ajax({
+	        type: 'post',
+	        url: '../topic/upload',
+	        data: formData,
+	        mimeType: "multipart/form-data",
+	        contentType: false,
+	        cache: false,
+	        processData: false
+	      }).success(function () {
+	    	  $.showMsg('SUCCESS','上传成功');
+	    	  $('#excelForm')[0].reset();
+	        //成功提交
+	      }).fail(function (jqXHR, textStatus, errorThrown) {
+	    	  $.showMsg('FAIL','上传失败'+textStatus);
+	        //错误信息
+	      });
+	  });
+		
+		
+		
+})
+
+ function selectOnchang(obj){ 
+		var index = obj.selectedIndex;
+		$('#select0').hide();
+		$('#select1').hide();
+		$('#select2').hide();
+		$('#select3').hide();
+		if(index==0){
+			$('#select0').show();
+		}
+		if(index==1){
+			$('#select1').show();
+		}
+		if(index==2){
+			$('#select2').show();
+		}
+		if(index==3){
+			$('#select3').show();
+		}
+	};
+  
+ </script>
+<body>
+
+
+
+<div class="col-sm-12">
+
+
+
+
+	<ul class="nav nav-tabs"  style="margin-top: 15px;background-color: #00d49038;">
+		<li  class="active"><a href="#handleInput" data-toggle="tab"><span class="glyphicon glyphicon-edit">  </span> HandleInput</a></li>
+		<li><a href="#excelInput" data-toggle="tab"><span class="glyphicon glyphicon-cloud-upload">  </span> Excel upload</a></li>
+	</ul>
+			<div  class="tab-content">
+			
+				<div class="tab-pane fade in active" id="handleInput">
+					
+					<form role="form" id = "topicForm">
+									<div class="form-inline" style="margin-top: 10px; margin-bottom: 10px;">
+										<div class="form-group">
+											  <label  >Index：</label><input type="number" class="form-control" name="index" value="1"/>
+										</div>
+										<div class="form-group">
+											 <label  >Group NO：</label><input type="text" class="form-control" name="groupNo" />
+										</div>
+									</div>
+									
+									<div class="form-group">
+										 <label >Topic Name</label><input type="text" class="form-control" id="topicName" name="topicName" />
+									</div>
+									<div class="form-group">
+										 <label >Sub Topic Name</label><input type="text" class="form-control" id="subTopicName" name="subTopicName"/>
+									</div>
+									<div class="form-group">
+										 <label >Topic Tip</label><input type="text" class="form-control" id="topicTip" name="topicTip"/>
+									</div>
+									<div class="form-group">
+										 <label >Point</label><input type="number" class="form-control" name="point"/>
+									</div>
+									<div class="form-group">
+					 					<label>Topic Type</label>
+										<select class="selectpicker" id="topicType" onchange="selectOnchang(this)" name="topicType">
+										    <option value="1">简答题</option>
+										    <option value="2">选择题</option>
+										    <option value="3">填空题</option>
+										    <option value="4">判别题</option>
+										</select>
+									</div>
+									<div class="form-group">
+									<label for="topicTip">double click to choice image</label>
+										<div class="row" style="width: 100%;margin-left: 0px;">
+										
+											<div class="input-group">
+												<span class="input-group-btn">
+													<button type="button" id="relationImage" class="btn btn-default" data-toggle="modal" data-target="#choiceImageModal">Choice image</button>
+												</span>
+												<input type="text" class="form-control" id="readonlyImageId" name="imageId" readonly="readonly"/>
+											</div>
+									
+										</div>
+										
+										 
+									</div>
+									
+									
+									<div class="form-group">
+					 					<div id="select0">
+					 						<label >Topic Answer</label><input type="text" class="form-control" id="answer1" name="answer1"/>
+					 					</div>
+					 					<div id="select1">
+					 						<label >Topic Options</label></br>
+					 						
+					 						<div class="container" style="width: auto;">
+												<div class="row clearfix">
+															<div class="col-md-6 column">
+															A:<input type="text" class="form-control" name="optionA" />
+															</div>
+															<div class="col-md-6 column">
+															B:<input type="text" class="form-control" name="optionB" />
+															</div>
+															<div class="col-md-6 column">
+															C:<input type="text" class="form-control" name="optionC" />
+															</div>
+															<div class="col-md-6 column">
+															D:<input type="text" class="form-control" name="optionD" />
+															</div>
+															<div class="col-md-6 column">
+															E:<input type="text" class="form-control" name="optionE" />
+															</div>
+															<div class="col-md-6 column">
+															F:<input type="text" class="form-control" name="optionF" />
+															</div>
+													</div>
+											</div>
+					 						<div id="select0">
+					 							<label>Topic Answer</label><input type="text" class="form-control" id="answer2" name="answer2"/>
+					 						</div>
+					 					</div>
+					 					
+					 					<div id="select2">
+					 						<label >The key word</label><input type="text" class="form-control" name="answer3"  data-toggle="tooltip" 
+					 						 title=" Ensure that placeholders exist in topic name '--' , keywords will be filled "/>
+					 					</div>
+					 					
+					 					<div id="select3">
+					 						<label >Choice yes or no</label></br>
+					 						 <label class="radio-inline">
+				      							<input type="radio"  value="true" id="answer4True" name="answer4">True
+				    						</label>
+										    <label class="radio-inline">
+										      <input type="radio"  value="false" id="answer4False" name="answer4">False
+										    </label>
+					 					</div>
+									</div>
+									<input type="hidden"  value="" name="topicId">
+									<button type="button" id="saveTopic" class="btn btn-default"><span class="glyphicon glyphicon-ok"> </span> Submit</button>
+								</form>
+				</div>
+				<div class="tab-pane fade " id="excelInput">
+					
+					<form role="form" id="excelForm" enctype="multipart/form-data" action='' method='post'>
+					 <div class="form-group" style="margin-top: 20px;">
+					   <a href="../topic/downLoadExcel"><span class="glyphicon glyphicon-cloud-download"> </span> 模板下载</a>
+					  </div>
+					  <div class="form-group">
+					    <label>Excel文件上传</label>
+					    <input type="file"  name="excelFile" id="excelFile">
+					    <p class="help-block">只能选择Excel文件。</p>
+					  </div>
+					  
+					  <button type="button" id="excelUploadBtn" class="btn btn-default"><span class="glyphicon glyphicon-ok"> 提 交</span></button>
+					</form>
+				</div>
+				
+			</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+<!-- 模态框（Modal） -->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="choiceImageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+			</div>
+			<div class="col-sm-12">
+				<div class="table-responsive" style="height: 500px;">
+								<table class="table" id="choiceImageTable">
+									
+									<thead>
+										<tr>
+											<th>Image Name</th>
+											<th>Image upload Date</th>
+											<th>Thumbnail</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+					</div>
+			
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<script>
+$(document).ready(function(){
+	// 查询topic
+	$("#searchTopic").on('click',function(e,b){
+		if(!e.isTrigger){
+			index = 0;
+		}
+		var groupNo = $("#groupNo").val();
+		var topicType = $("#searchTopicType").val();
+		var keyword = $("#keyWord").val();
+		var point = $("#point").val();
+		var param = {'groupNo':groupNo,'topicType':topicType,'keyword':keyword,'point':point,'pageSize':10,'index':index};
+		var url = "../topic/search";
+		var fun = function(data){
+			var topicTable = $("#topicTable");
+			$("#topicTable tr:not(:first)").empty(); 
+			topicList = data.data;
+			var len = topicList.length;
+			for(var i=0;i<len;i++){
+				topicTable.append('<tr><td>'+topicList[i].questionIndex+'</td><td class="td1">'+
+						$.getTopicType(topicList[i].type)+'</td><td class="td1">'+
+						topicList[i].title1+'</td><td class="td1">'+
+						topicList[i].answer+'</td><td>'+
+						topicList[i].point+'</td><td>'+
+						$.getLocalTime(topicList[i].updateDate)+'</td><td><a href="javascript:void(0);" topicId='+topicList[i].questionId+' groupId='+topicList[i].groupId+' onclick="deleteTopic(this)">delete</a>'+
+						'<a href="javascript:void(0);" topicId='+topicList[i].questionId+' groupId='+topicList[i].groupId+' onclick="editTopic(this)">  edit</a>'+
+						'<a href="javascript:void(0);" topicId='+topicList[i].questionId+' groupId='+topicList[i].groupId+' onclick="showTopic(this)">  show</a>'+
+						'</td></tr>');
+			};
+			// 生成分页
+			var pageBar = $('.pagination');
+			var needPageNum = data.count/10;
+			pageBar.children('li').remove(); 
+			for(var i=0;i<needPageNum;i++){
+				pageBar.append('<li><a href="javascript:void(0);" onclick="getPageData(this)"">'+(i+1)+'</a></li>');
+			}
+			$('#total').html('total:'+data.count);
+		}
+		$.ajaxGet(url,param,fun);
+	});
+	
+
+	// 查询topic
+	$("#showByGroup").on('click',function(){
+		var groupNo = $("#groupNo").val();
+		if(groupNo){
+			window.open("../topic/showView?groupNo="+groupNo); 
+		}else{
+			 $.showMsg('FAIL','please input the groupNo');
+		}
+		
+	});
+	$("#resetForm").on('click',function(){
+		$('#searchForm')[0].reset();
+	});
+})
+
+function deleteTopic(a){
+	 var url = "../topic/delete"
+	 var param = {'topicId':$(a).attr('topicId')};
+	 var fun = function(data){
+		 $.showMsg('SUCCESS',data.msg);
+		 $(a).parent().parent().remove();
+	 }
+	 $.ajaxPost(url,JSON.stringify(param),fun);
+ };
+ 
+ function editTopic(a){
+	 var topic;
+	 for(var i = 0;i< topicList.length;i++){
+		 if(topicList[i].questionId == $(a).attr('topicId')){
+			 topic = topicList[i];
+			 break;
+		 }
+	 }
+	 $('#myTab a[href="#new"]').tab('show');
+	 $('a[href="#handleInput"]').tab('show');
+	 var form = $('#topicForm');
+	 form.find(":input[name='index']").val(topic.questionIndex);
+	 form.find(":input[name='groupNo']").val(topic.groupId);
+	 form.find(":input[name='topicName']").val(topic.title1);
+	 form.find(":input[name='subTopicName']").val(topic.title2);
+	 form.find(":input[name='topicTip']").val(topic.tip);
+	 form.find(":input[name='topicType']").val(topic.type);
+	 form.find(":input[name='point']").val(topic.point);
+	 form.find(":input[name='imageId']").val(topic.imageId+':');
+	 
+	 form.find(":input[name='optionA']").val(topic.optionA);
+	 form.find(":input[name='optionB']").val(topic.optionB);
+	 form.find(":input[name='optionC']").val(topic.optionC);
+	 form.find(":input[name='optionD']").val(topic.optionD);
+	 form.find(":input[name='optionE']").val(topic.optionE);
+	 form.find(":input[name='optionF']").val(topic.optionF);
+	 form.find(":input[name='topicId']").val(topic.questionId);
+	 
+	 $('#topicType').selectpicker('refresh');
+	 $('#topicType').trigger('change');
+	 if(topic.type=='1'){
+		 form.find(":input[name='answer1']").val(topic.answer);
+	 }
+	 if(topic.type=='2'){
+		 form.find(":input[name='answer2']").val(topic.answer);
+	 }
+	 if(topic.type=='3'){
+		 form.find(":input[name='answer3']").val(topic.answer);
+	 }
+	 if(topic.type=='4'){
+		 if(topic.answer==true){
+			 $('#answer4True').attr("checked",true);
+		 }else{
+			 $('#answer4False').attr("checked",true);
+		 }
+	 }
+	 
+ };
+
+ function showTopic(a){
+	 window.open("../topic/showView?groupNo="+$(a).attr('groupid')+"&topicId="+$(a).attr('topicId')); 
+ };
+ function getPageData(a){
+	 index = $(a).html()-0;
+	 $('#searchTopic').trigger('click');
+ }
+  
+ </script>
+<body>
+
+			<form role="form" id="searchForm">
+				<div class="form-inline" style="margin-top: 10px; margin-bottom: 10px;">
+							<div class="form-group " style="padding: 5px;">
+								  <label >Group No:</label><input type="text"  class="form-control" id="groupNo">
+							</div>
+							<div class="form-group" style="padding: 5px;">
+								 <label  >Key Word:</label><input type="text" class="form-control" id="keyWord" />
+							</div>
+							<div class="form-group" style="padding: 5px;">
+								 <label  > Point:</label><input type="text" class="form-control" id="point" />
+							</div>
+							<div class="form-group" style="padding: 5px;">
+								  <label  >Topic Type:</label>
+								  <select id="searchTopicType" class="selectpicker show-tick">
+										<option value="0">所有</option>
+									    <option value="1">简答题</option>
+									    <option value="2">选择题</option>
+									    <option value="3">填空题</option>
+									    <option value="4">判别题</option>
+									</select>
+							</div>
+				</div>
+				<div class="form-inline" style="margin-top: 10px; margin-bottom: 10px; float: right">
+							<div class="form-group">
+							 	<button type="button" class="btn" id="resetForm"> <span class="glyphicon glyphicon-glass"></span> Reset </button>
+								 <button type="button" class="btn" id="searchTopic"><span class="glyphicon glyphicon-search"></span> Search</button>
+								 <button type="button" class="btn" id="showByGroup"> <span class="glyphicon glyphicon-film"></span> Show Group</button>
+							</div>
+				</div>			
+			
+			</form>
+
+			<div class="table-responsive" style="margin-top: 64px;">
+				<table class="table table-hover" id="topicTable">
+				
+					<thead >
+						<tr style="background-color: #cfe8dd;">
+							<th>Index</th>
+							<th>Topic Type</th>
+							<th >Topic Name</th>
+							<th>Answer</th>
+							<th>Point</th>
+							<th>Update Date</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+				
+				
+			</div>
+<div>
+				<p id="total"  style=" float:left;display:block;clear:both;">total:0</p>
+				<ul class="pagination" style="float:right;display:block; margin:0px;"></ul>
+				</div>
+
+</body>
+</html>
