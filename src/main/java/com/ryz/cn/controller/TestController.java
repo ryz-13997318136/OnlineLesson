@@ -6,8 +6,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.ryz.cn.dao.Dao;
-import com.ryz.cn.entity.User;
 import com.ryz.cn.service.UserService;
 
 @Controller
